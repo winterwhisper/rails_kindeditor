@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-class Kindeditor::MediaUploader < Kindeditor::AssetUploader
+class KindeditorExtend::MediaUploader < KindeditorExtend::AssetUploader
 
   def extension_white_list
     EXT_NAMES[:media]

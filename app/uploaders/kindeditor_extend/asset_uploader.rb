@@ -1,11 +1,11 @@
 # encoding: utf-8
 
-class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
-  
-  EXT_NAMES = {:image => RailsKindeditor.upload_image_ext,
-               :flash => RailsKindeditor.upload_flash_ext,
-               :media => RailsKindeditor.upload_media_ext,
-               :file  => RailsKindeditor.upload_file_ext}
+class KindeditorExtend::AssetUploader < CarrierWave::Uploader::Base
+
+  EXT_NAMES = {:image => RailsKindeditorExtend.upload_image_ext,
+               :flash => RailsKindeditorExtend.upload_flash_ext,
+               :media => RailsKindeditorExtend.upload_media_ext,
+               :file  => RailsKindeditorExtend.upload_file_ext}
 
   # Include RMagick or ImageScience support:
   # include CarrierWave::RMagick
@@ -19,10 +19,10 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
   # Override the directory where uploaded files will be stored.
   # This is a sensible default for uploaders that are meant to be mounted:
   def store_dir
-    if Kindeditor::AssetUploader.save_upload_info?
-      "#{RailsKindeditor.upload_store_dir}/#{model.asset_type.to_s.underscore.gsub(/(kindeditor\/)|(_uploader)/, '')}/#{model.created_at.strftime("%Y%m")}"
+    if KindeditorExtend::AssetUploader.save_upload_info?
+      "#{RailsKindeditorExtend.upload_store_dir}/#{model.asset_type.to_s.underscore.gsub(/(kindeditor\/)|(_uploader)/, '')}/#{model.created_at.strftime("%Y%m")}"
     else
-      "#{RailsKindeditor.upload_store_dir}/#{self.class.to_s.underscore.gsub(/(kindeditor\/)|(_uploader)/, '')}/#{Time.now.strftime("%Y%m")}"
+      "#{RailsKindeditorExtend.upload_store_dir}/#{self.class.to_s.underscore.gsub(/(kindeditor\/)|(_uploader)/, '')}/#{Time.now.strftime("%Y%m")}"
     end
   end
 
@@ -68,16 +68,16 @@ class Kindeditor::AssetUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    if original_filename 
+    if original_filename
       @name ||= Digest::MD5.hexdigest(File.dirname(current_path)).slice(0, 12)
       "#{@name}.#{file.extension}"
     end
   end
-  
+
   def self.save_upload_info?
     begin
       %w(asset file flash image media).each do |s|
-        "Kindeditor::#{s.camelize}".constantize
+        "KindeditorExtend::#{s.camelize}".constantize
       end
       return true
     rescue

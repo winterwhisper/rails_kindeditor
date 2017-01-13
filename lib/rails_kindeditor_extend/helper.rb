@@ -1,6 +1,6 @@
-module RailsKindeditor
+module RailsKindeditorExtend
   module Helper
-    def kindeditor_tag(name, content = nil, options = {})
+    def kindeditor_extend_tag(name, content = nil, options = {})
       id = sanitize_to_id(name)
       input_html = { :id => id }.merge(options.delete(:input_html) || {})
       input_html[:class] = "#{input_html[:class]} rails_kindeditor"
@@ -8,19 +8,19 @@ module RailsKindeditor
       output << text_area_tag(name, content, input_html)
       output << javascript_tag(js_replace(id, options))
     end
-    
-    def kindeditor(name, method, options = {})
+
+    def kindeditor_extend(name, method, options = {})
       # TODO: Refactory options: 1. kindeditor_option 2. html_option
       input_html = (options.delete(:input_html) || {}).stringify_keys
       output_buffer = ActiveSupport::SafeBuffer.new
       output_buffer << build_text_area_tag(name, method, self, merge_assets_info(options), input_html)
       output_buffer << javascript_tag(js_replace(input_html['id'], options))
     end
-    
+
     def merge_assets_info(options)
       owner = options.delete(:owner)
       options[:class] = "#{options[:class]} rails_kindeditor"
-      if Kindeditor::AssetUploader.save_upload_info? && (!owner.nil?) && (!owner.id.nil?)
+      if KindeditorExtend::AssetUploader.save_upload_info? && (!owner.nil?) && (!owner.id.nil?)
         begin
           owner_id = owner.id
           owner_type = owner.class.name
@@ -31,7 +31,7 @@ module RailsKindeditor
         options.reverse_merge!(data: {upload: kindeditor_upload_json_path, filemanager: kindeditor_file_manager_json_path})
       end
     end
-    
+
     def kindeditor_upload_json_path(*args)
       options = args.extract_options!
       owner_id_query_string = options[:owner_id] ? "?owner_id=#{options[:owner_id]}" : ''
@@ -42,13 +42,13 @@ module RailsKindeditor
         "#{main_app_root_url}kindeditor/upload#{owner_id_query_string}#{owner_type_query_string}"
       end
     end
-    
+
     def kindeditor_file_manager_json_path
       "#{main_app_root_url}kindeditor/filemanager"
     end
-    
+
     private
-    
+
     def main_app_root_url
       begin
         main_app.root_url.slice(0, main_app.root_url.rindex(main_app.root_path)) + '/'
@@ -56,7 +56,7 @@ module RailsKindeditor
         '/'
       end
     end
-    
+
     def js_replace(dom_id, options = {})
       editor_id = options[:editor_id].nil? ? '' : "#{options[:editor_id].to_s.downcase} = "
       if options[:window_onload]
@@ -65,13 +65,13 @@ module RailsKindeditor
         "var old_onload_#{random_name};
         if(typeof window.onload == 'function') old_onload_#{random_name} = window.onload;
         window.onload = function() {
-          KindEditor.basePath='#{RailsKindeditor.base_path}';
-          #{editor_id}KindEditor.create('##{dom_id}', #{get_options(options).to_json});
+          KindEditorExtend.basePath='#{RailsKindeditorExtend.base_path}';
+          #{editor_id}KindEditorExtend.create('##{dom_id}', #{get_options(options).to_json});
           if(old_onload_#{random_name}) old_onload_#{random_name}();
         }"
       else
-        "KindEditor.basePath='#{RailsKindeditor.base_path}';
-        KindEditor.ready(function(K){
+        "KindEditorExtend.basePath='#{RailsKindeditorExtend.base_path}';
+        KindEditorExtend.ready(function(K){
         	#{editor_id}K.create('##{dom_id}', #{get_options(options).to_json});
         });"
       end
@@ -91,7 +91,7 @@ module RailsKindeditor
       options.delete(:simple_mode)
       options
     end
-    
+
     def build_text_area_tag(name, method, template, options, input_html)
       if Rails.version >= '4.0.0'
         text_area_tag = ActionView::Helpers::Tags::TextArea.new(name, method, template, options)
@@ -108,10 +108,10 @@ module RailsKindeditor
       end
     end
   end
-  
+
   module Builder
-    def kindeditor(method, options = {})
-      @template.send("kindeditor", @object_name, method, objectify_options(options))
+    def kindeditor_extend(method, options = {})
+      @template.send("kindeditor_extend", @object_name, method, objectify_options(options))
     end
   end
 end

@@ -1,8 +1,8 @@
 require "formtastic"
 
-class KindeditorInput
+class KindeditorExtendInput
   include ::Formtastic::Inputs::Base
-  
+
   def to_html
     input_wrapping do
       label_html <<
